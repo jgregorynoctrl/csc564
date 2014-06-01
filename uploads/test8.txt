@@ -1,6 +1,0 @@
-SELECT  a.Asset_guid , a.Asset_name, b.Asset_description, c.isValid
-FROM `table a` a 
-INNER JOIN `table b` b ON a.Asset_guid = b.Asset_guid
-LEFT OUTER JOIN `table c` c ON a.Asset_guid = c.Asset_guid
-WHERE Asset_name LIKE '%ReturnME%'
-AND  c.isValid = 1

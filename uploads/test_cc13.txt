@@ -1,7 +1,0 @@
-#attributes
-attributes value1 value2 
-attributes value1 value2 value3 value4
-
-#rules 
-attribute=value  == attribute=value attribute=value 
-attribute=value attribute=value  attribute=value == attribute=value attribute=value attribute=value
