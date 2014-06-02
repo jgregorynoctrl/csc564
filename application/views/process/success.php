@@ -65,7 +65,7 @@
 
 <h3>Your file was successfully uploaded!</h3>
 
-<?php print_r($file); ?>
+<?php var_dump($file); ?>
 
 <p><?php echo anchor('process/default', 'Upload Another File!'); ?></p>
 

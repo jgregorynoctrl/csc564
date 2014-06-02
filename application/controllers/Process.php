@@ -31,9 +31,16 @@ class Process extends CI_Controller {
                         //load our Canonical Cover Model
                         $this->load->model('Ccover');
                     
-			$data = array('upload_data' => $this->upload->data());
+			$data = $this->upload->data();
                         
-                        $data = $this->Ccover->proccess($data);
+                        $processed = $this->Ccover->process($data);
+                        
+                        if(isset($processed['error'])){
+                            $error = $processed['error'];
+                            $this->load->view('process/default', $error);
+                        }
+                        
+                        $data['file'] = $processed;
 
 			$this->load->view('process/success', $data);
 		}
