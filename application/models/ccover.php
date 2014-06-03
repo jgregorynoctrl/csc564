@@ -13,7 +13,9 @@ class Ccover extends CI_Model {
         parent::__construct();
     }
     
-    //read in file and find canonical cover
+    /*
+     * read in file and find canonical cover
+     */
     public function process($data)
     {
         $status = $this->validateFile($data);
@@ -30,8 +32,10 @@ class Ccover extends CI_Model {
         return $data['error'] = $this->error;
     }
     
-    // the do_upload file takes care of alot of errors for us, but lets make sure
-    // we have some content and validate anything else
+    /*
+     *  the do_upload file takes care of alot of errors for us, but lets make sure
+     *  we have some content and validate anything else
+     */
     private function validateFile($data)
     {
         if(empty($data) OR !is_array($data)){
@@ -46,7 +50,9 @@ class Ccover extends CI_Model {
        
     }
     
-    // breaks file into array for each line
+    /*
+     *  breaks file into array for each line
+     */
     private function splitdata()
     {
         if(!empty($this->file))
@@ -55,9 +61,12 @@ class Ccover extends CI_Model {
         }
     }
     
-    // process the data file to split attributes and rules
+    /*
+     *  process the data file to split attributes and rules
+     */
     private function process_lines()
     {
+        // initiate file var
         $file = $this->file;
         
         //if the data is empty and not in array format
@@ -65,12 +74,15 @@ class Ccover extends CI_Model {
             return;
         }
         
+        // set up variables to assign rows to
         $attributes = array(); // 1
         $rules = array(); // 0
         $flag = 0;
         
+        // iterate over each line
         foreach($file as $row => $value)
         {
+            // if we hit a number change which array we are creating
             if(is_numeric($value))
             {
                 $flag = !$flag;
@@ -80,6 +92,7 @@ class Ccover extends CI_Model {
             }
         }
         
+        // process each attribute and rules arrays
         $attributes = $this->process_attrs($attributes);
         $rules = $this->process_rules($rules);
         
@@ -87,20 +100,25 @@ class Ccover extends CI_Model {
             'attributes' => $attributes,
             'rules' => $rules
         );
+        
+        // set the processed file variable
         $this->processed_file = $data;
     }
     
-    // create the attribute array
+    /*
+     *  create the attribute array
+     */
     private function process_attrs($arg)
     {
-        $attributes = array();
-        
+        $attributes = array();      
         if(!empty($arg)){
-
             foreach($arg as $row => $value){
+                // split the attribute and values
                 $line = explode(' ',trim($value));
                 $attr = $line[0];
                 unset($line[0]);
+                
+                // build attr => value array
                 foreach($line as $r => $q){
                     $attributes[$attr][] =$q;
                 }
@@ -109,14 +127,22 @@ class Ccover extends CI_Model {
         return $attributes;    
     }
     
-    //create the rules array
+    /*
+     * create the rules array
+     */
     private function process_rules($arg)
     {
        $rules = array(); 
-       if(!empty($arg)){
+       if(!empty($arg)){ 
            foreach($arg as $row => $value){
-                $line = explode('==',trim($value));    
+               
+                // split the line to create our left and right side
+                $line = explode('==',trim($value)); 
+                
+                // run the reflexivity rule here
                 $rule = $this->reflexivity($line);
+                
+                // build the rules array
                 $rules[trim($rule[0])] = trim($rule[1]);
             }
         }
@@ -124,7 +150,9 @@ class Ccover extends CI_Model {
         return $rules;
     }
     
-    // Axiom of Reflexivity
+    /*
+     *  Perform Axiom of Reflexivity
+     */
     private function reflexivity($rule)
     {
         // if we have an empty rule set
