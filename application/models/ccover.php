@@ -114,6 +114,9 @@ class Ccover extends CI_Model {
     {
         $attributes = array();      
         if(!empty($arg)){
+            //remove duplicates before creating array
+           $arg = array_unique($arg);
+            
             foreach($arg as $row => $value){
                 // split the attribute and values
                 $line = explode(' ',trim($value));
@@ -136,6 +139,9 @@ class Ccover extends CI_Model {
     {
        $rules = array(); 
        if(!empty($arg)){ 
+            //remove duplicates before creating array
+           $arg = array_unique($arg);
+           
            foreach($arg as $row => $value){
                
                 // split the line to create our left and right side
@@ -145,7 +151,8 @@ class Ccover extends CI_Model {
                 $rule = $this->reflexivity($line);
                 
                 // build the rules array
-                $rules[trim($rule[0])] = trim($rule[1]);
+                $rules[][trim($rule[0])] = trim($rule[1]);
+                
             }
         }
         
@@ -199,6 +206,8 @@ class Ccover extends CI_Model {
         if(isset($this->rules) && empty($this->rules) && !is_array($this->rules)){
             return;
         }
+        
+        
     }
     
     /*
