@@ -28,6 +28,7 @@ class Ccover extends CI_Model {
               $this->rules = $this->processed_file['rules'];
               $this->augmentation();
               $this->transitivity();
+              $this->find_canonical_cover();
           }
           return $this->rules;
         }
@@ -286,6 +287,25 @@ class Ccover extends CI_Model {
 
         // update object rules var 
         $this->rules = $rules;  
+    }
+    
+    /*
+     * performs the work to finding the canonical cover
+     */
+    private function find_canonical_cover()
+    {
+        // only perform if rules array exists and is an array
+        if(isset($this->rules) && empty($this->rules) && !is_array($this->rules)){
+            return;
+        }
+        $data = $this->rules;
+        foreach ($data as $key => $row) {   
+            $left[$key] = current($row);
+            $right[$key]  = key($row);
+        }
+        array_multisort($left, SORT_DESC, $right, SORT_ASC, $data);
+        var_dump($data);
+        
     }
 }
 
