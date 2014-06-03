@@ -161,6 +161,7 @@ class Ccover extends CI_Model {
     
     /*
      *  Perform Axiom of Reflexivity
+     *  A,B,C -> C,D reduces to A,B,C -> D
      */
     private function reflexivity($rule)
     {
@@ -196,6 +197,8 @@ class Ccover extends CI_Model {
     
     /*
      *  Perform Axiom of augmentation
+     *  (Ugly but works)
+     *  A,B -> C and A -> C reduces to A->C (A,B -> C is elminated)
      */
     private function augmentation() {
         // only perform if rules array exists and is an array
@@ -241,6 +244,7 @@ class Ccover extends CI_Model {
     
     /*
      *  Perform Axiom of transitivity
+     *  A->C and C-D and A->D reduces to  A->C and C->D (A->D is eliminated) 
      */
     private function transitivity()
     {
