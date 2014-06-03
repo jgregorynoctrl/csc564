@@ -5,6 +5,7 @@ class Ccover extends CI_Model {
     var $file   = '';
     var $error  = '';
     var $processed_file = '';
+    var $rules = '';
 
     function __construct()
     {
@@ -12,7 +13,7 @@ class Ccover extends CI_Model {
         parent::__construct();
     }
     
-    //read in file 
+    //read in file and find canonical cover
     public function process($data)
     {
         $status = $this->validateFile($data);
@@ -20,7 +21,11 @@ class Ccover extends CI_Model {
           $this->file = read_file($data['full_path']);
           $this->splitdata();
           $this->process_lines();
-          return $this->processed_file;
+          if(isset($this->processed_file['rules']) && !empty($this->processed_file['rules']))
+          {
+              $this->rules = $this->processed_file['rules'];
+          }
+          return $this->rules;
         }
         return $data['error'] = $this->error;
     }
@@ -85,7 +90,7 @@ class Ccover extends CI_Model {
         $this->processed_file = $data;
     }
     
-    // process the attribute array
+    // create the attribute array
     private function process_attrs($arg)
     {
         $attributes = array();
@@ -104,20 +109,57 @@ class Ccover extends CI_Model {
         return $attributes;    
     }
     
-    //process the rules array
+    //create the rules array
     private function process_rules($arg)
     {
        $rules = array(); 
        if(!empty($arg)){
            foreach($arg as $row => $value){
-                $line = explode('==',trim($value));           
-                $attr = explode(' ',trim($line[0]));               
-                $rule = explode(' ',trim($line[1]));         
-                $rules[trim($line[0])] = trim($line[1]);
+                $line = explode('==',trim($value));    
+                $rule = $this->reflexivity($line);
+                $rules[trim($rule[0])] = trim($rule[1]);
             }
         }
         
         return $rules;
     }
+    
+    // Axiom of Reflexivity
+    private function reflexivity($rule)
+    {
+        // if we have an empty rule set
+        if(empty($rule)){
+            return;
+        }
+        
+        // create the left and right side arrays of the rule
+        $left_side = explode(' ',trim($rule[0]));
+        $right_side = explode(' ',trim($rule[1]));
+        
+        // check for matches on both sides 
+        $matches = array_intersect($left_side, $right_side);
+        
+        //if there are matches, remove them from both sides
+        if($matches){
+           foreach($matches as $key => $match){
+            if(($key = array_search($match, $left_side)) !== false) {
+                unset($left_side[$key]);
+            }
+            if(($key = array_search($match, $right_side)) !== false) {
+                unset($right_side[$key]);
+            }   
+           }
+           
+           //recreate the rule array
+           $rule = array();
+           $rule[] = implode(' ',$left_side);
+           $rule[] = implode(' ',$right_side);
+        }
+        
+        //return rule
+        return $rule;
+    }
+    
+    
 }
 
