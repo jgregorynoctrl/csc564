@@ -26,6 +26,8 @@ class Ccover extends CI_Model {
           if(isset($this->processed_file['rules']) && !empty($this->processed_file['rules']))
           {
               $this->rules = $this->processed_file['rules'];
+              $this->augmentation();
+              $this->transitivity();
           }
           return $this->rules;
         }
@@ -188,6 +190,26 @@ class Ccover extends CI_Model {
         return $rule;
     }
     
+    /*
+     *  Perform Axiom of augmentation
+     */
+    private function augmentation()
+    {
+        // only perform if rules array exists and is an array
+        if(isset($this->rules) && empty($this->rules) && !is_array($this->rules)){
+            return;
+        }
+    }
     
+    /*
+     *  Perform Axiom of transitivity
+     */
+    private function transitivity()
+    {
+        // only perform if rules array exists and is an array
+        if(isset($this->rules) && empty($this->rules) && !is_array($this->rules)){
+            return;
+        }
+    }
 }
 
