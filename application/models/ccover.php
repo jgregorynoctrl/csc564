@@ -145,10 +145,10 @@ class Ccover extends CI_Model {
            foreach($arg as $row => $value){
                
                 // split the line to create our left and right side
-                $line = explode('==',trim($value)); 
+                $rule = explode('==',trim($value)); 
                 
                 // run the reflexivity rule here
-                $rule = $this->reflexivity($line);
+                $rule = $this->reflexivity($rule);
                 
                 // build the rules array
                 $rules[][trim($rule[0])] = trim($rule[1]);
@@ -176,12 +176,9 @@ class Ccover extends CI_Model {
         // check for matches on both sides 
         $matches = array_intersect($left_side, $right_side);
         
-        //if there are matches, remove them from both sides
+        //if there are matches, remove them from the right side
         if($matches){
            foreach($matches as $key => $match){
-            if(($key = array_search($match, $left_side)) !== false) {
-                unset($left_side[$key]);
-            }
             if(($key = array_search($match, $right_side)) !== false) {
                 unset($right_side[$key]);
             }   
@@ -200,14 +197,46 @@ class Ccover extends CI_Model {
     /*
      *  Perform Axiom of augmentation
      */
-    private function augmentation()
-    {
+    private function augmentation() {
         // only perform if rules array exists and is an array
-        if(isset($this->rules) && empty($this->rules) && !is_array($this->rules)){
+        if (isset($this->rules) && empty($this->rules) && !is_array($this->rules)) {
             return;
         }
-        
-        
+        //assign local rules var
+        $rules = $this->rules;
+        $k = 0;
+        foreach ($rules as $key1 => $rule1) {
+            $left1 = explode(' ', key($rule1));
+            $right1 = explode(' ', $rule1[key($rule1)]);
+            foreach ($rules as $key2 => $rule2) {
+                //make sure we aren't comparing the same rule  
+                if ($rule1 != $rule2) {
+                    $left2 = explode(' ', trim(key($rule2)));
+                    $right2 = explode(' ', trim($rule2[key($rule2)]));
+
+                    //the two rules have at least one of the same values on the right
+                    arsort($right1);
+                    arsort($right2);
+                    if ($right1 === $right2) {
+
+                        // make sure they have at least one of the same values on the left
+                        if (array_intersect($left1, $left2)) {
+                            $elminiate_rule = max($left1, $left2);
+                            $elminiate_rule = implode(' ', $elminiate_rule);
+                            var_dump(key($rules[$key1]));
+                            if (key($rules[$key1]) == $elminiate_rule) {
+                                unset($rules[$k]);
+                            }
+                        }
+                    }
+                }
+            }
+
+            $k++;
+        }
+
+        // update object rules var 
+        $this->rules = $rules;
     }
     
     /*
