@@ -226,7 +226,6 @@ class Ccover extends CI_Model {
                         if (array_intersect($left1, $left2)) {
                             $elminiate_rule = max($left1, $left2);
                             $elminiate_rule = implode(' ', $elminiate_rule);
-                            var_dump(key($rules[$key1]));
                             if (key($rules[$key1]) == $elminiate_rule) {
                                 unset($rules[$k]);
                             }
@@ -252,6 +251,41 @@ class Ccover extends CI_Model {
         if(isset($this->rules) && empty($this->rules) && !is_array($this->rules)){
             return;
         }
+        //assign local rules var
+        $rules = $this->rules;
+        foreach ($rules as $key1 => $rule1) {
+            $left1 = explode(' ', key($rule1));
+            $right1 = explode(' ', $rule1[key($rule1)]);
+            arsort($left1);
+            arsort($right1);
+            
+            foreach ($rules as $key2 => $rule2) {
+                //make sure we aren't comparing the same rule  
+                if ($rule1 != $rule2) {
+                    $left2 = explode(' ', trim(key($rule2)));
+                    $right2 = explode(' ', trim($rule2[key($rule2)]));
+
+                    //the two rules have at least one of the same values on the right
+                    arsort($left2);
+                    arsort($right2);
+                    if ($right1 === $left2) {
+                        foreach ($rules as $key3 => $rule3) {
+                            $left3 = explode(' ', key($rule3));
+                            $right3 = explode(' ', $rule3[key($rule3)]);
+                            
+                            arsort($left3);
+                            arsort($right3);                
+                            if(($left3 == $left1) && ($right3 == $right2)){ 
+                                unset($rules[$key3]);
+                            } 
+                        }
+                    }
+                }
+            }
+        }
+
+        // update object rules var 
+        $this->rules = $rules;  
     }
 }
 
