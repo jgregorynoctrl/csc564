@@ -110,7 +110,9 @@ class Ccover extends CI_Model {
        $rules = array(); 
        if(!empty($arg)){
            foreach($arg as $row => $value){
-                $line = explode("==",trim($value));
+                $line = explode('==',trim($value));           
+                $attr = explode(' ',trim($line[0]));               
+                $rule = explode(' ',trim($line[1]));         
                 $rules[trim($line[0])] = trim($line[1]);
             }
         }
