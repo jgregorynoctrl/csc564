@@ -360,6 +360,7 @@ class Ccover extends CI_Model {
                                 
                                 if ($rule_subset) {
                                     // if so remove tested rule
+                                    echo 'unset '.$data[$left1][$key1];
                                     unset($data[$left1][$key1]);
 
                                     // set flag to drop out of loops
