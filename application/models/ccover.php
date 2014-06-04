@@ -305,7 +305,35 @@ class Ccover extends CI_Model {
         // re-structure the rules array so we can use it 
         $data = $this->sort_rules($this->rules);
 
-        
+        // start first loop over set of rules
+        foreach($data as $left1 => $right1)
+        {
+            // loop over each value rule is a FD for
+            foreach($right1 as $key1 => $value1)
+            {
+                // add final rule to resultset
+                $result[] = $left1;
+                
+                // begin second loop over set of rules
+                foreach($data as $left2 => $right2)
+                {
+                    // loop over each value rule is a FD for
+                    foreach($right2 as $key2 => $value2)
+                    {
+                        // ignore the rule in the result set
+                        if($value1 != $value2)
+                        {
+                            // ad value to result if subset
+                            // check if result[] == to rule being tested
+                                // if so remove tested rule
+                                    // set flag to drop out of loops back to the first
+                        }
+                    }
+                }
+            }
+            // clear result set out
+            $result = array();
+        }
         
         
         $this->rules =  $data;
