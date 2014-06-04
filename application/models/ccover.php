@@ -229,8 +229,10 @@ class Ccover extends CI_Model {
                         if (array_intersect($left1, $left2)) {
                             $elminiate_rule = max($left1, $left2);
                             $elminiate_rule = implode(' ', $elminiate_rule);
-                            if (key($rules[$key1]) == $elminiate_rule) {
-                                unset($rules[$k]);
+                            if(isset($rules[$key1])){
+                                if (key($rules[$key1]) == $elminiate_rule) {
+                                    unset($rules[$k]);
+                                }
                             }
                         }
                     }
@@ -295,10 +297,9 @@ class Ccover extends CI_Model {
     /*
      * performs the work to finding the canonical cover
      */
-    private function find_canonical_cover()
-    {
+    private function find_canonical_cover() {
         // only perform if rules array exists and is an array
-        if(isset($this->rules) && empty($this->rules) && !is_array($this->rules)){
+        if (isset($this->rules) && empty($this->rules) && !is_array($this->rules)) {
             return;
         }
 
@@ -306,44 +307,66 @@ class Ccover extends CI_Model {
         $data = $this->sort_rules($this->rules);
 
         // start first loop over set of rules
-        foreach($data as $left1 => $right1)
-        {
+        foreach ($data as $left1 => $right1) {
+            // flag off 
+            $flag = 0;
+
             // loop over each value rule is a FD for
-            foreach($right1 as $key1 => $value1)
-            {
+            foreach ($right1 as $key1 => $value1) {
+                // break out of loop
+                if ($flag) {
+                    break;
+                }
+
                 // add final rule to resultset
-                $result[] = $left1;
-                
+                $result = explode(' ', $left1);
+                $orig_rule = $result;
+                $orig_rule[] = $value1;
+
                 // begin second loop over set of rules
-                foreach($data as $left2 => $right2)
-                {
+                foreach ($data as $left2 => $right2) {
+                    // break out of loop
+                    if ($flag) {
+                        break;
+                    }
+
                     // loop over each value rule is a FD for
-                    foreach($right2 as $key2 => $value2)
-                    {
+                    foreach ($right2 as $key2 => $value2) {
+                        // break out of loop
+                        if ($flag) {
+                            break;
+                        }
+
                         // ignore the rule in the result set
-                        if($value1 != $value2)
-                        {
-                           $subset =  $this->compare_keys($left1,$left2);
-                           if($subset){
-                               // add value to result if subset
-                               $result[] = $value2;
-                               echo '============================';
-                               echo '<br>';
-                               echo '+rule+';
-                               var_dump($key1);
-                               echo '+rule+';
-                               var_dump($result);
-                               echo 'left - right';
-                               var_dump($left1);
-                               var_dump($right1);
-                               echo 'possible rule to remove';
-                               var_dump($data[$left1][$key1]);
-                               echo '============================';
-                               // check if result[] == to rule being tested
-                                   // if so remove tested rule
-                                   //unset($data[$left1][0][$key1])
-                                       // set flag to drop out of loops back to the first
-                           }
+                        if ($value1 != $value2) {
+                            // check if rule is subset of result 
+                            $c = explode(' ', trim($left2));
+                            $subset = $this->compare_arrays($result, $c);
+                            if ($subset) {
+                                // add value to result if subset
+                                $result[] = $value2;
+
+                                // check if original test rule is a subset of result set
+                                $rule_subset = $this->compare_arrays($result, $orig_rule);
+                                  /*  echo '============================';
+                                    echo '<br>';
+                                    echo '+original rule+';
+                                    var_dump($orig_rule);
+                                    echo '+result set+';
+                                    var_dump($result);
+                                    echo 'rule to remove';
+                                    var_dump($data[$left1][$key1]);
+                                    echo '============================';*/
+                                
+                                if ($rule_subset) {
+                                    // if so remove tested rule
+                                    unset($data[$left1][$key1]);
+
+                                    // set flag to drop out of loops
+                                    $flag = 1;
+
+                                }
+                            }
                         }
                     }
                 }
@@ -351,25 +374,23 @@ class Ccover extends CI_Model {
             // clear result set out
             $result = array();
         }
-        $this->rules =  $data;
+        #var_dump($data);
+        $this->rules = $data;
     }
     
     /*
-     * compares two array keys that are strings
-     * @arg1  = string
-     * @agr2  = string
-     * returns true if arg1 is a is a subset of b
+     * Checks is b is a subset of a
+     * @a  = array 
+     * @b  = array 
+     * returns true if  b is a subset of a or false if not
      */
-    private function compare_keys($a,$b)
+    private function compare_arrays($a = array(), $b = array())
     {
-        // explode key strings to arrays and intersect
-        $a = explode(' ',trim($a));
-        $b = explode(' ',trim($b));
         $result = array_intersect($a, $b);
-        
+                
         // if the interest has the same number of elements as the original
-        // it is a subset so return tru
-        if(count($a) == count($result)){
+        // it is a subset so return true
+        if(count($b) == count($result)){
             return true;
         }
         
