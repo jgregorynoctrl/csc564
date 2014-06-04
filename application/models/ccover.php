@@ -6,6 +6,7 @@ class Ccover extends CI_Model {
     var $error  = '';
     var $processed_file = '';
     var $rules = '';
+    var $attributes = '';
 
     function __construct()
     {
@@ -26,6 +27,7 @@ class Ccover extends CI_Model {
           if(isset($this->processed_file['rules']) && !empty($this->processed_file['rules']))
           {
               $this->rules = $this->processed_file['rules'];
+              $this->attributes = $this->processed_file['attributes'];
               $this->augmentation();
               $this->transitivity();
               $this->find_canonical_cover();
@@ -289,6 +291,7 @@ class Ccover extends CI_Model {
         $this->rules = $rules;  
     }
     
+
     /*
      * performs the work to finding the canonical cover
      */
@@ -298,14 +301,50 @@ class Ccover extends CI_Model {
         if(isset($this->rules) && empty($this->rules) && !is_array($this->rules)){
             return;
         }
-        $data = $this->rules;
-        foreach ($data as $key => $row) {   
-            $left[$key] = current($row);
-            $right[$key]  = key($row);
-        }
-        array_multisort($left, SORT_DESC, $right, SORT_ASC, $data);
-        var_dump($data);
+
+        // re-structure the rules array so we can use it 
+        $data = $this->sort_rules($this->rules);
+
         
+        
+        
+        $this->rules =  $data;
+    }
+    
+    /*
+     *  Restructures and sorts rules array
+     */
+    private function sort_rules($rules)
+    {
+        $data = array();
+        // re-structure the rules array so we can use it 
+        foreach ($rules as $key => $row) {
+            if (array_key_exists(key($row), $data)) {
+                $right = explode(' ', trim(current($row)));
+                foreach ($right as $r => $v) {
+                    $data[key($row)][] = $v;
+                }
+            } else {
+                $data[key($row)] = explode(' ', trim(current($row)));
+            }
+        }
+
+        // custom sorting function to sort rules array by number of 
+        // attributes on left only
+        function ccsort($a, $b) {
+            $arr1 = explode(' ', trim($a));
+            $arr2 = explode(' ', trim($b));
+
+            if (count($arr1) == count($arr2))
+                return 0;
+            if (count($arr1) < count($arr2))
+                return 1;
+            return -1;
+        }
+
+        uksort($data, 'ccsort');
+
+        return $data;
     }
 }
 
