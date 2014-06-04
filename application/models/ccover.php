@@ -323,10 +323,27 @@ class Ccover extends CI_Model {
                         // ignore the rule in the result set
                         if($value1 != $value2)
                         {
-                            // ad value to result if subset
-                            // check if result[] == to rule being tested
-                                // if so remove tested rule
-                                    // set flag to drop out of loops back to the first
+                           $subset =  $this->compare_keys($left1,$left2);
+                           if($subset){
+                               // add value to result if subset
+                               $result[] = $value2;
+                               echo '============================';
+                               echo '<br>';
+                               echo '+rule+';
+                               var_dump($key1);
+                               echo '+rule+';
+                               var_dump($result);
+                               echo 'left - right';
+                               var_dump($left1);
+                               var_dump($right1);
+                               echo 'possible rule to remove';
+                               var_dump($data[$left1][$key1]);
+                               echo '============================';
+                               // check if result[] == to rule being tested
+                                   // if so remove tested rule
+                                   //unset($data[$left1][0][$key1])
+                                       // set flag to drop out of loops back to the first
+                           }
                         }
                     }
                 }
@@ -334,9 +351,30 @@ class Ccover extends CI_Model {
             // clear result set out
             $result = array();
         }
-        
-        
         $this->rules =  $data;
+    }
+    
+    /*
+     * compares two array keys that are strings
+     * @arg1  = string
+     * @agr2  = string
+     * returns true if arg1 is a is a subset of b
+     */
+    private function compare_keys($a,$b)
+    {
+        // explode key strings to arrays and intersect
+        $a = explode(' ',trim($a));
+        $b = explode(' ',trim($b));
+        $result = array_intersect($a, $b);
+        
+        // if the interest has the same number of elements as the original
+        // it is a subset so return tru
+        if(count($a) == count($result)){
+            return true;
+        }
+        
+        // not a subset
+        return false;
     }
     
     /*
