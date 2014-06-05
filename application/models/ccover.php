@@ -28,6 +28,12 @@ class Ccover extends CI_Model {
           {
               $this->rules = $this->processed_file['rules'];
               $this->attributes = $this->processed_file['attributes'];
+              
+              var_dump($this->rules);
+              // re-structure the rules array so we can use it 
+              $this->rules = $this->sort_rules($this->rules);
+
+              
               #$this->reflexivity();
               #$this->transitivity();
               #$this->find_canonical_cover();
@@ -150,8 +156,9 @@ class Ccover extends CI_Model {
                 // split the line to create our left and right side
                 $rule = explode('==',trim($value)); 
                 
+                
                 // run the reflexivity rule here
-                $rule = $this->augmentation($rule);
+                $rule = $this->aug_reflex($rule);
                 
                 if($rule){      
                     // build the rules array
@@ -164,11 +171,14 @@ class Ccover extends CI_Model {
         return $rules;
     }
     
+    
     /*
-     *  Perform Axiom of augmentation
+     *  Perform Axiom of augmentation and
+     *  Perform Axiom of reflexivity
      *  A,B,C -> C,D reduces to A,B,C -> D
+     *  or if A,B,C -> C then remove rule
      */
-    private function augmentation($rule)
+    private function aug_reflex($rule)
     {
         // if we have an empty rule set
         if(empty($rule)){
@@ -182,11 +192,20 @@ class Ccover extends CI_Model {
         // check for matches on both sides 
         $matches = array_intersect($left_side, $right_side);
         
-        //if there are matches, remove them from the right side
+        //if there are matches
         if($matches){
+            
            foreach($matches as $key => $match){
             if(($key = array_search($match, $right_side)) !== false) {
-                unset($right_side[$key]);
+              
+              //remove from both sides if left and right are equal in attribute count  
+              if(count($left_side) == count($right_side)){
+                     unset($left_side[$key]);
+                     unset($right_side[$key]);
+              }else{
+                  unset($right_side[$key]);
+              }
+               
             }   
            }
            
@@ -197,9 +216,9 @@ class Ccover extends CI_Model {
         }
         
         // if we removed everything on the right side
-       /* if(empty($right_side)){
+        if(empty($right_side)){
             return 0;   
-        }*/
+        }
         
         //return rule
         return $rule;
@@ -209,7 +228,7 @@ class Ccover extends CI_Model {
      *  Perform Axiom of reflexivity
      *  (Ugly but works)
      *  A,B -> C and A -> C reduces to A->C (A,B -> C is elminated)
-     */
+     *
     private function reflexivity() {
         // only perform if rules array exists and is an array
         if (isset($this->rules) && empty($this->rules) && !is_array($this->rules)) {
@@ -251,12 +270,12 @@ class Ccover extends CI_Model {
 
         // update object rules var 
         $this->rules = $rules;
-    }
+    }*/
     
     /*
      *  Perform Axiom of transitivity
      *  A->C and C-D and A->D reduces to  A->C and C->D (A->D is eliminated) 
-     */
+     *
     private function transitivity()
     {
         // only perform if rules array exists and is an array
@@ -298,12 +317,12 @@ class Ccover extends CI_Model {
 
         // update object rules var 
         $this->rules = $rules;  
-    }
+    }*/
     
 
     /*
      * performs the work to finding the canonical cover
-     */
+     *
     private function find_canonical_cover() {
         // only perform if rules array exists and is an array
         if (isset($this->rules) && empty($this->rules) && !is_array($this->rules)) {
@@ -363,7 +382,7 @@ class Ccover extends CI_Model {
                                     var_dump($result);
                                     echo 'rule to remove';
                                     var_dump($data[$left1][$key1]);
-                                    echo '============================';*/
+                                    echo '============================';
                                 
                                 if ($rule_subset) {
                                     // if so remove tested rule
@@ -384,7 +403,7 @@ class Ccover extends CI_Model {
         }
         #var_dump($data);
         $this->rules = $data;
-    }
+    }*/
     
     /*
      * Checks is b is a subset of a
