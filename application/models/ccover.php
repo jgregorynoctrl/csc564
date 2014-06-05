@@ -227,7 +227,7 @@ class Ccover extends CI_Model {
     private function canonical_cover()
     {        
         $f = $this->rules;
-
+        $count=0;
         // loop over whole list of F
         foreach ($f as $a => $b) {
             $subset = 0;
@@ -236,10 +236,12 @@ class Ccover extends CI_Model {
             // for each array key of rule
             //now we are working with the full rule
             foreach ($b as $c => $d) {
-                $result = explode(' ',trim($a . ' ' .$d));
+                $result = explode(' ',trim($a));
+                $rule  = explode(' ',trim(trim($a).' '.trim($d)));
+                echo '<br>=======================</br>';
 
                 // while the rule is not a subset
-                while ($changed && !$subset) {
+                while ($changed != 0 && !$subset) {
                     // we need a way to know when to stop iterating over
                     // result_cmp holds count before to compare with after loops
                     $result_cmp = count($result);
@@ -249,44 +251,57 @@ class Ccover extends CI_Model {
                     foreach ($z as $q => $w) {
                         // loop over array values to get specific rule
                         foreach ($w as $j => $k) {
-                            if (($a != $q)) {
-                                // check if w is subset of result then add d
+                            var_dump($a);
+                            var_dump($rule);
+
+                            var_dump($q);
+                            $rule_2  = explode(' ',trim(trim($q).' '.trim($k)));
+                            var_dump($rule_2);
+
+                            if (($rule != $rule_2)) {
+                                echo 'different rule';
+                                // check if q is subset of result then add d
                                 $q_chk = explode(' ', trim($q));
-                                echo '<br>===================================<br>';
-                                var_dump($result);
-                                var_dump($q_chk);
-                                var_dump($q);
-                                echo '<br>===================================<br>';
                                 $rule_subset = $this->compare_arrays($result, $q_chk);
                                     if($rule_subset)
                                     {
                                          // add k to result
                                          $result[] = trim($k);
                                 
-                                        // check if w is subset of result, if yes drop out of loop
-                                        // and remove w
-                                        $subset = $this->compare_arrays($result, $w);
+                                        // check if d is subset of result, if yes drop out of loop
+                                        // and remove d
+                                        $d_chk = explode(' ', trim($d));
+                                        $subset = $this->compare_arrays($result, $d_chk);
                                         unset($f[$a][$c]);
-                                        var_dump($f[$a][$c]);
+                                        if(empty($f[$a])){
+                                            unset($f[$a]);
+                                        }
+                                        var_dump('unset');
                                         $subset = 1;
                                     }
                             }
-                            if (!$subset)
+                            if ($subset)
                                 break;
                         }
-                        if (!$subset)
+                        if ($subset)
                             break;
                     }
                     // check if result increased, otherwise fall out of loop
                     $changed = ($result_cmp != count($result))? 1 : 0;
-                    var_dump($changed);
-                    
+                                        
                     // fall out of loop if rule is subset
-                    if (!$subset)
+                    if ($subset)
                         break;
                 }
+                echo($count);
+                $count++;
             }
         }
+        
+        //remove empty values
+
+        
+        $this->rules = $f;
     }
 
     /*
