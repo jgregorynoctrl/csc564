@@ -1,73 +1,32 @@
 <html>
 <head>
-<title>Upload Form</title>
-	<style type="text/css">
-
-	::selection { background-color: #E13300; color: white; }
-	::-moz-selection { background-color: #E13300; color: white; }
-	::-webkit-selection { background-color: #E13300; color: white; }
-
-	body {
-		background-color: #fff;
-		margin: 40px;
-		font: 13px/20px normal Helvetica, Arial, sans-serif;
-		color: #4F5155;
-	}
-
-	a {
-		color: #003399;
-		background-color: transparent;
-		font-weight: normal;
-	}
-
-	h1 {
-		color: #444;
-		background-color: transparent;
-		border-bottom: 1px solid #D0D0D0;
-		font-size: 19px;
-		font-weight: normal;
-		margin: 0 0 14px 0;
-		padding: 14px 15px 10px 15px;
-	}
-
-	code {
-		font-family: Consolas, Monaco, Courier New, Courier, monospace;
-		font-size: 12px;
-		background-color: #f9f9f9;
-		border: 1px solid #D0D0D0;
-		color: #002166;
-		display: block;
-		margin: 14px 0 14px 0;
-		padding: 12px 10px 12px 10px;
-	}
-
-	#body {
-		margin: 0 15px 0 15px;
-	}
-
-	p.footer {
-		text-align: right;
-		font-size: 11px;
-		border-top: 1px solid #D0D0D0;
-		line-height: 32px;
-		padding: 0 10px 0 10px;
-		margin: 20px 0 0 0;
-	}
-
-	#container {
-		margin: 10px;
-		border: 1px solid #D0D0D0;
-		box-shadow: 0 0 8px #D0D0D0;
-	}
-	</style>
+<title>CSC564 Grad Project</title>
+<link rel="stylesheet" type="text/css" href="<?php echo base_url();?>assets/css/bootstrap.css">
 </head>
 <body>
+<div class="container">
+<h3>The Canonical Cover:</h3>
 
-<h3>Your file was successfully uploaded!</h3>
+<table class="table">
+      <tr>
+        <th>Left Attribute(s)</th>
+        <th></th>
+        <th>Right Attribute(s)</th> 
+      </tr>
+    <?php 
+        foreach($file as $key => $value)
+        {
+            echo '<tr>';
+            echo '<td>'.$key.'</td>';
+            echo '<td><span class="glyphicon glyphicon-chevron-right"></span></td>';
+            echo '<td>'.implode(', ',$value).'</td>';
+            echo '</tr>';
+        }
+    ?>
+</table>
 
-<?php var_dump($file); ?>
-
-<p><?php echo anchor('process/default', 'Upload Another File!'); ?></p>
-
+<p><?php echo anchor('process', 'Upload Another File!'); ?></p>
+<p>CSC-564 Jack Gregory Graduate Project</p>
+</div>
 </body>
 </html>

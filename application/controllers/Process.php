@@ -38,7 +38,7 @@ class Process extends CI_Controller {
                         if(isset($processed['error'])){
                             $error = $processed['error'];
                             $this->load->view('process/default', $error);
-                        }
+                        }     
                         
                         $data['file'] = $processed;
 

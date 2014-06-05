@@ -153,7 +153,6 @@ class Ccover extends CI_Model {
                 // split the line to create our left and right side
                 $rule = explode('==',trim($value)); 
                 
-                
                 // run the reflexivity rule here
                 $rule = $this->aug_reflex($rule);
                 
@@ -178,70 +177,73 @@ class Ccover extends CI_Model {
     private function aug_reflex($rule)
     {
         // if we have an empty rule set
-        if(empty($rule)){
+        if (empty($rule)) {
             return;
         }
-        
+
         // create the left and right side arrays of the rule
-        $left_side = explode(' ',trim($rule[0]));
-        $right_side = explode(' ',trim($rule[1]));
-        
+        $left_side = explode(' ', trim($rule[0]));
+        $right_side = explode(' ', trim($rule[1]));
+
         // check for matches on both sides 
         $matches = array_intersect($left_side, $right_side);
-        
+
         //if there are matches
-        if($matches){
-            
-           foreach($matches as $key => $match){
-            if(($key = array_search($match, $right_side)) !== false) {
-              
-              //remove from both sides if left and right are equal in attribute count  
-              if(count($left_side) == count($right_side)){
-                     unset($left_side[$key]);
-                     unset($right_side[$key]);
-              }else{
-                  unset($right_side[$key]);
-              }
-               
-            }   
-           }
-           
-           //recreate the rule array
-           $rule = array();
-           $rule[] = implode(' ',$left_side);
-           $rule[] = implode(' ',$right_side);
+        if ($matches) {
+
+            foreach ($matches as $key => $match) {
+                if (($key = array_search($match, $right_side)) !== false) {
+
+                    //remove from both sides if left and right are equal in attribute count  
+                    if (count($left_side) == count($right_side)) {
+                        unset($left_side[$key]);
+                        unset($right_side[$key]);
+                    } else {
+                        unset($right_side[$key]);
+                    }
+                }
+            }
+
+            //recreate the rule array
+            $rule = array();
+            $rule[] = implode(' ', $left_side);
+            $rule[] = implode(' ', $right_side);
         }
-        
+
         // if we removed everything on the right side
-        if(empty($right_side)){
-            return 0;   
+        if (empty($right_side)) {
+            return 0;
         }
-        
+
         //return rule
         return $rule;
     }
     
     /*
+     *  The Conanical Cover function
      *  F = $this->rules
      */
     private function canonical_cover()
-    {        
+    {       
+        // store the rules in f
         $f = $this->rules;
+        
         // loop over whole list of F
         foreach ($f as $a => $b) {
-            $subset = 0;
-            $changed = 1;
 
-            // for each array key of rule
-            //now we are working with the full rule
+            // for each array key ,now we are working with the rule $a->$d
             foreach ($b as $c => $d) {
-                $result = explode(' ',trim($a));
-                $rule  = explode(' ',trim(trim($a).' '.trim($d)));
+                // iniate some variables for later
+                $subset = 0;
+                $changed = 1;
+                $result = explode(' ', trim($a));
+                $rule = explode(' ', trim(trim($a) . ' ' . trim($d)));
 
-                // while the rule is not a subset
-                while ($changed != 0 && !$subset) {
-                    // we need a way to know when to stop iterating over
-                    // result_cmp holds count before to compare with after loops
+                // while their are still rules being added to the result set
+                // and $d is a subset
+                while (($changed != 0) && !$subset) {
+                    
+                    // keep track of result set count
                     $result_cmp = count($result);
 
                     // loop again over whole set
@@ -249,41 +251,43 @@ class Ccover extends CI_Model {
                     foreach ($z as $q => $w) {
                         // loop over array values to get specific rule
                         foreach ($w as $j => $k) {
+                            //iniate variable of rule to check against $rule with
+                            $rule_2 = explode(' ', trim(trim($q) . ' ' . trim($k)));
 
-
-                            $rule_2  = explode(' ',trim(trim($q).' '.trim($k)));
-
+                            // don't compare the same rule
                             if (($rule != $rule_2)) {
-                                // check if q is subset of result then add d
+                                
+                                // check if q is subset of result
                                 $q_chk = explode(' ', trim($q));
                                 $rule2_subset = $this->compare_arrays($result, $q_chk);
-                                    if($rule2_subset)
-                                    {
-                                         // add k to result
-                                        $hasvalue = in_array(trim($k),$result);
-                                        if(!$hasvalue){
-                                         $result[] = trim($k);
-                                        }
                                 
-                                        // check if d is subset of result, if yes drop out of loop
-                                        // and remove d
-                                        $d_chk = explode(' ', trim($d));
-                                        $rule_subset = $this->compare_arrays($result, $d_chk);
-                                        
-                                        if($rule_subset){
+                                // is a subset
+                                if ($rule2_subset) {
+                                    
+                                    // add k to result
+                                    $hasvalue = in_array(trim($k), $result);
+                                    if (!$hasvalue) {
+                                        $result[] = trim($k);
+                                    }
 
-                                            unset($f[$a][$c]);
-                                            if(empty($f[$a])){
-                                                unset($f[$a]);
-                                            } 
-                                            $subset = 1;
-                                             break;
+                                    // check if d is subset of result, if yes drop out of loop
+                                    // and remove d from f
+                                    $d_chk = explode(' ', trim($d));
+                                    $rule_subset = $this->compare_arrays($result, $d_chk);
+
+                                    if ($rule_subset) {
+                                        unset($f[$a][$c]);
+                                        if (empty($f[$a])) {
+                                            unset($f[$a]);
                                         }
-                                        if ($subset)
-                                break;
+                                        $subset = 1;
+                                        break;
                                     }
                                     if ($subset)
-                                break;
+                                        break;
+                                }
+                                if ($subset)
+                                    break;
                             }
                             if ($subset)
                                 break;
@@ -292,18 +296,15 @@ class Ccover extends CI_Model {
                             break;
                     }
                     // check if result increased, otherwise fall out of loop
-                    $changed = ($result_cmp != count($result))? 1 : 0;
-                                        
+                    $changed = ($result_cmp != count($result)) ? 1 : 0;
+
                     // fall out of loop if rule is subset
                     if ($subset)
                         break;
                 }
             }
         }
-        
-        //remove empty values
-
-        
+        // save canonical cover to rules
         $this->rules = $f;
     }
 

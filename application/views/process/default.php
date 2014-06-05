@@ -5,7 +5,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 <html lang="en">
 <head>
 	<meta charset="utf-8">
-	<title>Welcome to CodeIgniter</title>
+	<title>CSC564 Grad Project</title>
 
 	<style type="text/css">
 
@@ -72,6 +72,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 <div id="container">
     <?php echo $error;?>
 
+    <h3>Choose File to get canonical cover for.</h3>
     <?php echo form_open_multipart('process/do_upload');?>
 
     <input type="file" name="userfile" size="20" />
@@ -81,7 +82,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
     <input type="submit" value="upload" />
 
     </form>
+    <p>CSC-564 Jack Gregory Graduate Project</p>
 </div>
-
 </body>
 </html>
