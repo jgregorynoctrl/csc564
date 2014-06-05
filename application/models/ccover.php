@@ -28,9 +28,9 @@ class Ccover extends CI_Model {
           {
               $this->rules = $this->processed_file['rules'];
               $this->attributes = $this->processed_file['attributes'];
-              $this->augmentation();
-              $this->transitivity();
-              $this->find_canonical_cover();
+              #$this->reflexivity();
+              #$this->transitivity();
+              #$this->find_canonical_cover();
           }
           return $this->rules;
         }
@@ -151,10 +151,12 @@ class Ccover extends CI_Model {
                 $rule = explode('==',trim($value)); 
                 
                 // run the reflexivity rule here
-                $rule = $this->reflexivity($rule);
+                $rule = $this->augmentation($rule);
                 
-                // build the rules array
-                $rules[][trim($rule[0])] = trim($rule[1]);
+                if($rule){      
+                    // build the rules array
+                    $rules[][trim($rule[0])] = trim($rule[1]);
+                }
                 
             }
         }
@@ -163,10 +165,10 @@ class Ccover extends CI_Model {
     }
     
     /*
-     *  Perform Axiom of Reflexivity
+     *  Perform Axiom of augmentation
      *  A,B,C -> C,D reduces to A,B,C -> D
      */
-    private function reflexivity($rule)
+    private function augmentation($rule)
     {
         // if we have an empty rule set
         if(empty($rule)){
@@ -194,16 +196,21 @@ class Ccover extends CI_Model {
            $rule[] = implode(' ',$right_side);
         }
         
+        // if we removed everything on the right side
+       /* if(empty($right_side)){
+            return 0;   
+        }*/
+        
         //return rule
         return $rule;
     }
     
     /*
-     *  Perform Axiom of augmentation
+     *  Perform Axiom of reflexivity
      *  (Ugly but works)
      *  A,B -> C and A -> C reduces to A->C (A,B -> C is elminated)
      */
-    private function augmentation() {
+    private function reflexivity() {
         // only perform if rules array exists and is an array
         if (isset($this->rules) && empty($this->rules) && !is_array($this->rules)) {
             return;
