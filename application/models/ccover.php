@@ -33,9 +33,7 @@ class Ccover extends CI_Model {
               //  and separating the rules of more than on value on the right
               $this->rules = $this->sort_rules($this->rules);
 
-
-              #$this->transitivity();
-              #$this->find_canonical_cover();
+              $this->canonical_cover();
           }
           return $this->rules;
         }
@@ -223,54 +221,74 @@ class Ccover extends CI_Model {
         return $rule;
     }
     
-    
     /*
-     *  Perform Axiom of transitivity
-     *  A->C and C-D and A->D reduces to  A->C and C->D (A->D is eliminated) 
-     *
-    private function transitivity()
-    {
-        // only perform if rules array exists and is an array
-        if(isset($this->rules) && empty($this->rules) && !is_array($this->rules)){
-            return;
-        }
-        //assign local rules var
-        $rules = $this->rules;
-        foreach ($rules as $key1 => $rule1) {
-            $left1 = explode(' ', key($rule1));
-            $right1 = explode(' ', $rule1[key($rule1)]);
-            arsort($left1);
-            arsort($right1);
-            
-            foreach ($rules as $key2 => $rule2) {
-                //make sure we aren't comparing the same rule  
-                if ($rule1 != $rule2) {
-                    $left2 = explode(' ', trim(key($rule2)));
-                    $right2 = explode(' ', trim($rule2[key($rule2)]));
+     *  F = $this->rules
+     */
+    private function canonical_cover()
+    {        
+        $f = $this->rules;
 
-                    //the two rules have at least one of the same values on the right
-                    arsort($left2);
-                    arsort($right2);
-                    if ($right1 === $left2) {
-                        foreach ($rules as $key3 => $rule3) {
-                            $left3 = explode(' ', key($rule3));
-                            $right3 = explode(' ', $rule3[key($rule3)]);
-                            
-                            arsort($left3);
-                            arsort($right3);                
-                            if(($left3 == $left1) && ($right3 == $right2)){ 
-                                unset($rules[$key3]);
-                            } 
+        // loop over whole list of F
+        foreach ($f as $a => $b) {
+            $subset = 0;
+            $changed = 1;
+
+            // for each array key of rule
+            //now we are working with the full rule
+            foreach ($b as $c => $d) {
+                $result = explode(' ',trim($a . ' ' .$d));
+
+                // while the rule is not a subset
+                while ($changed && !$subset) {
+                    // we need a way to know when to stop iterating over
+                    // result_cmp holds count before to compare with after loops
+                    $result_cmp = count($result);
+
+                    // loop again over whole set
+                    $z = $f;
+                    foreach ($z as $q => $w) {
+                        // loop over array values to get specific rule
+                        foreach ($w as $j => $k) {
+                            if (($a != $q)) {
+                                // check if w is subset of result then add d
+                                $q_chk = explode(' ', trim($q));
+                                echo '<br>===================================<br>';
+                                var_dump($result);
+                                var_dump($q_chk);
+                                var_dump($q);
+                                echo '<br>===================================<br>';
+                                $rule_subset = $this->compare_arrays($result, $q_chk);
+                                    if($rule_subset)
+                                    {
+                                         // add k to result
+                                         $result[] = trim($k);
+                                
+                                        // check if w is subset of result, if yes drop out of loop
+                                        // and remove w
+                                        $subset = $this->compare_arrays($result, $w);
+                                        unset($f[$a][$c]);
+                                        var_dump($f[$a][$c]);
+                                        $subset = 1;
+                                    }
+                            }
+                            if (!$subset)
+                                break;
                         }
+                        if (!$subset)
+                            break;
                     }
+                    // check if result increased, otherwise fall out of loop
+                    $changed = ($result_cmp != count($result))? 1 : 0;
+                    var_dump($changed);
+                    
+                    // fall out of loop if rule is subset
+                    if (!$subset)
+                        break;
                 }
             }
         }
+    }
 
-        // update object rules var 
-        $this->rules = $rules;  
-    }*/
-        
     /*
      * Checks is b is a subset of a
      * @a  = array 
