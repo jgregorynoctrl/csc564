@@ -227,7 +227,6 @@ class Ccover extends CI_Model {
     private function canonical_cover()
     {        
         $f = $this->rules;
-        $count=0;
         // loop over whole list of F
         foreach ($f as $a => $b) {
             $subset = 0;
@@ -238,7 +237,6 @@ class Ccover extends CI_Model {
             foreach ($b as $c => $d) {
                 $result = explode(' ',trim($a));
                 $rule  = explode(' ',trim(trim($a).' '.trim($d)));
-                echo '<br>=======================</br>';
 
                 // while the rule is not a subset
                 while ($changed != 0 && !$subset) {
@@ -251,34 +249,41 @@ class Ccover extends CI_Model {
                     foreach ($z as $q => $w) {
                         // loop over array values to get specific rule
                         foreach ($w as $j => $k) {
-                            var_dump($a);
-                            var_dump($rule);
 
-                            var_dump($q);
+
                             $rule_2  = explode(' ',trim(trim($q).' '.trim($k)));
-                            var_dump($rule_2);
 
                             if (($rule != $rule_2)) {
-                                echo 'different rule';
                                 // check if q is subset of result then add d
                                 $q_chk = explode(' ', trim($q));
-                                $rule_subset = $this->compare_arrays($result, $q_chk);
-                                    if($rule_subset)
+                                $rule2_subset = $this->compare_arrays($result, $q_chk);
+                                    if($rule2_subset)
                                     {
                                          // add k to result
+                                        $hasvalue = in_array(trim($k),$result);
+                                        if(!$hasvalue){
                                          $result[] = trim($k);
+                                        }
                                 
                                         // check if d is subset of result, if yes drop out of loop
                                         // and remove d
                                         $d_chk = explode(' ', trim($d));
-                                        $subset = $this->compare_arrays($result, $d_chk);
-                                        unset($f[$a][$c]);
-                                        if(empty($f[$a])){
-                                            unset($f[$a]);
+                                        $rule_subset = $this->compare_arrays($result, $d_chk);
+                                        
+                                        if($rule_subset){
+
+                                            unset($f[$a][$c]);
+                                            if(empty($f[$a])){
+                                                unset($f[$a]);
+                                            } 
+                                            $subset = 1;
+                                             break;
                                         }
-                                        var_dump('unset');
-                                        $subset = 1;
+                                        if ($subset)
+                                break;
                                     }
+                                    if ($subset)
+                                break;
                             }
                             if ($subset)
                                 break;
@@ -293,8 +298,6 @@ class Ccover extends CI_Model {
                     if ($subset)
                         break;
                 }
-                echo($count);
-                $count++;
             }
         }
         
