@@ -29,12 +29,11 @@ class Ccover extends CI_Model {
               $this->rules = $this->processed_file['rules'];
               $this->attributes = $this->processed_file['attributes'];
               
-              var_dump($this->rules);
-              // re-structure the rules array so we can use it 
+              // re-structure and sort rules by highest on left side by least,
+              //  and separating the rules of more than on value on the right
               $this->rules = $this->sort_rules($this->rules);
 
-              
-              #$this->reflexivity();
+
               #$this->transitivity();
               #$this->find_canonical_cover();
           }
@@ -224,53 +223,6 @@ class Ccover extends CI_Model {
         return $rule;
     }
     
-    /*
-     *  Perform Axiom of reflexivity
-     *  (Ugly but works)
-     *  A,B -> C and A -> C reduces to A->C (A,B -> C is elminated)
-     *
-    private function reflexivity() {
-        // only perform if rules array exists and is an array
-        if (isset($this->rules) && empty($this->rules) && !is_array($this->rules)) {
-            return;
-        }
-        //assign local rules var
-        $rules = $this->rules;
-        $k = 0;
-        foreach ($rules as $key1 => $rule1) {
-            $left1 = explode(' ', key($rule1));
-            $right1 = explode(' ', $rule1[key($rule1)]);
-            foreach ($rules as $key2 => $rule2) {
-                //make sure we aren't comparing the same rule  
-                if ($rule1 != $rule2) {
-                    $left2 = explode(' ', trim(key($rule2)));
-                    $right2 = explode(' ', trim($rule2[key($rule2)]));
-
-                    //the two rules have at least one of the same values on the right
-                    arsort($right1);
-                    arsort($right2);
-                    if ($right1 === $right2) {
-
-                        // make sure they have at least one of the same values on the left
-                        if (array_intersect($left1, $left2)) {
-                            $elminiate_rule = max($left1, $left2);
-                            $elminiate_rule = implode(' ', $elminiate_rule);
-                            if(isset($rules[$key1])){
-                                if (key($rules[$key1]) == $elminiate_rule) {
-                                    unset($rules[$k]);
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-
-            $k++;
-        }
-
-        // update object rules var 
-        $this->rules = $rules;
-    }*/
     
     /*
      *  Perform Axiom of transitivity
